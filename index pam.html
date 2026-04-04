@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pam Plus — Your Constellation Companion</title>
+  <meta name="description" content="Pam Plus is a warm, thoughtful AI conversation companion. Talk, reflect, and explore ideas together." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #04060f;
+      --surface: #080d1e;
+      --surface2: #0d1428;
+      --accent-blue: #6ea4ff;
+      --accent-purple: #a07aff;
+      --accent-glow-blue: rgba(100,160,255,0.18);
+      --accent-glow-purple: rgba(160,120,255,0.15);
+      --text: #d8e4ff;
+      --muted: rgba(180,200,255,0.45);
+      --border: rgba(100,140,255,0.14);
+      --border-hover: rgba(120,160,255,0.3);
+      --bubble-pam: rgba(15,22,60,0.85);
+      --bubble-user: rgba(60,30,120,0.6);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── STARFIELD ── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+    }
+
+    @keyframes twinkle {
+      0%,100% { opacity: var(--lo); }
+      50% { opacity: var(--hi); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(4,6,15,0.75);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 16px rgba(110,164,255,0.5);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent-blue); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 60px;
+    }
+
+    .hero-logo {
+      margin-bottom: 32px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(160,200,255,0.7);
+      background: rgba(60,100,200,0.12);
+      border: 1px solid rgba(100,150,255,0.2);
+      border-radius: 20px;
+      padding: 6px 14px;
+      margin-bottom: 24px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .pulse-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #5ce898;
+      box-shadow: 0 0 6px #5ce898;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(32px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: #fff;
+      text-shadow: 0 0 40px rgba(110,164,255,0.4);
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 40px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #3050c0 0%, #7040c0 100%);
+      border: 1px solid rgba(140,160,255,0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 0 30px rgba(80,80,200,0.35);
+      letter-spacing: 0.02em;
+    }
+
+    .hero-cta:hover { opacity: 0.88; transform: translateY(-2px); }
+    .hero-cta:active { transform: scale(0.97); }
+
+    /* ── CHAT APP ── */
+    #chat-section {
+      position: relative;
+      z-index: 1;
+      padding: 40px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .section-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      opacity: 0.6;
+      margin-bottom: 32px;
+    }
+
+    #pam-app {
+      width: 100%;
+      max-width: 680px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(60,80,200,0.18), 0 0 120px rgba(80,40,160,0.1);
+    }
+
+    #app-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,15,40,0.7);
+    }
+
+    #app-av {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(40,60,160,0.4);
+      border: 1px solid rgba(100,140,255,0.35);
+      box-shadow: 0 0 14px rgba(80,120,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #app-header-info h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #c8d8ff;
+      letter-spacing: 0.07em;
+      text-shadow: 0 0 12px rgba(140,180,255,0.5);
+    }
+
+    #app-header-info p {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 300;
+    }
+
+    #app-online {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.5px;
+      color: rgba(100,220,160,0.85);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    #messages {
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 340px;
+      max-height: 420px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .msg-row { display: flex; gap: 10px; animation: fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+    .msg-row.user { flex-direction: row-reverse; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .av-sm {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .av-sm.pam {
+      background: rgba(40,60,160,0.4);
+      border: 1px solid rgba(100,140,255,0.3);
+    }
+
+    .av-sm.user {
+      background: rgba(80,40,160,0.35);
+      border: 1px solid rgba(160,100,255,0.3);
+      font-family: 'Orbitron', monospace;
+      font-size: 7px;
+      color: rgba(200,170,255,0.8);
+      font-weight: 500;
+    }
+
+    .bubble {
+      max-width: 74%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+
+    .msg-row.pam .bubble {
+      background: var(--bubble-pam);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: rgba(200,220,255,0.92);
+    }
+
+    .msg-row.user .bubble {
+      background: var(--bubble-user);
+      border: 1px solid rgba(140,100,255,0.25);
+      border-bottom-right-radius: 4px;
+      color: rgba(220,205,255,0.95);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: rgba(120,150,220,0.3);
+      margin-top: 5px;
+      letter-spacing: 0.02em;
+    }
+
+    .msg-row.user .msg-time { text-align: right; }
+
+    #typing { display: none; align-items: center; gap: 10px; }
+    #typing.on { display: flex; }
+
+    .tdots {
+      padding: 12px 15px;
+      background: var(--bubble-pam);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      display: flex; gap: 5px; align-items: center;
+    }
+
+    .td {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(130,170,255,0.7);
+      box-shadow: 0 0 4px rgba(130,170,255,0.4);
+      animation: td 1.3s ease infinite;
+    }
+    .td:nth-child(2){animation-delay:.2s;}
+    .td:nth-child(3){animation-delay:.4s;}
+
+    @keyframes td {
+      0%,60%,100%{transform:scale(1);opacity:0.4;}
+      30%{transform:scale(1.4);opacity:1;}
+    }
+
+    #app-bottom {
+      padding: 14px 18px 18px;
+      border-top: 1px solid var(--border);
+      background: rgba(6,10,28,0.8);
+    }
+
+    #input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    #chat-input {
+      flex: 1;
+      background: rgba(12,18,50,0.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: rgba(210,225,255,0.9);
+      resize: none;
+      min-height: 44px;
+      max-height: 110px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      line-height: 1.5;
+    }
+
+    #chat-input:focus {
+      border-color: rgba(110,160,255,0.45);
+      box-shadow: 0 0 0 3px rgba(90,130,255,0.08);
+    }
+
+    #chat-input::placeholder { color: rgba(100,130,210,0.35); }
+
+    #send-btn {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3050c0 0%, #7040c0 100%);
+      border: 1px solid rgba(140,160,255,0.25);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 0 14px rgba(70,90,200,0.4);
+      color: #fff;
+    }
+
+    #send-btn:hover { opacity: 0.85; }
+    #send-btn:active { transform: scale(0.95); }
+    #send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    #app-error {
+      display: none;
+      font-size: 12px;
+      color: rgba(255,120,120,0.9);
+      background: rgba(80,20,20,0.5);
+      border: 1px solid rgba(200,80,80,0.2);
+      border-radius: 6px;
+      padding: 7px 11px;
+      margin-top: 8px;
+    }
+
+    #app-footer-note {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      opacity: 0.4;
+      margin-top: 10px;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── FEATURES ── */
+    #features {
+      position: relative;
+      z-index: 1;
+      padding: 60px 24px 100px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .features-heading {
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 500;
+      color: #c8d8ff;
+      margin-bottom: 48px;
+      letter-spacing: 0.04em;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 22px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .feat-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 0 24px rgba(80,100,200,0.12);
+    }
+
+    .feat-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(40,60,160,0.3);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .feat-card h4 {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: rgba(200,220,255,0.9);
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .feat-card p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      opacity: 0.6;
+      letter-spacing: 0.1em;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.5;
+      font-weight: 300;
+    }
+
+    /* ── API KEY MODAL ── */
+    #key-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2,4,12,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #key-overlay.show { display: flex; }
+
+    #key-modal {
+      background: var(--surface2);
+      border: 1px solid rgba(100,140,255,0.25);
+      border-radius: 18px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 0 60px rgba(60,80,200,0.25);
+      margin: 24px;
+    }
+
+    #key-modal h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #c8d8ff;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    #key-modal p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-weight: 300;
+      margin-bottom: 22px;
+    }
+
+    #key-modal a { color: var(--accent-blue); }
+
+    #api-key-input {
+      width: 100%;
+      background: rgba(10,15,40,0.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      color: rgba(200,220,255,0.9);
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+      letter-spacing: 0.04em;
+    }
+
+    #api-key-input:focus { border-color: rgba(110,160,255,0.45); }
+    #api-key-input::placeholder { color: rgba(100,130,210,0.3); }
+
+    #key-submit {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #3050c0 0%, #7040c0 100%);
+      border: 1px solid rgba(140,160,255,0.25);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      letter-spacing: 0.03em;
+    }
+
+    #key-submit:hover { opacity: 0.85; }
+
+    .key-note {
+      font-size: 11.5px;
+      color: var(--muted);
+      opacity: 0.55;
+      margin-top: 12px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { padding: 12px 18px; }
+      .nav-links { display: none; }
+      #hero { padding: 100px 20px 40px; }
+      #features { padding: 40px 18px 60px; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield -->
+<canvas id="starfield"></canvas>
+
+<!-- API Key Overlay -->
+<div id="key-overlay">
+  <div id="key-modal">
+    <h2>CONNECT TO PAM</h2>
+    <p>Pam needs an Anthropic API key to come alive. Your key is stored only in your browser and never sent anywhere except directly to Anthropic.<br><br>
+    Get a free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p>
+    <input id="api-key-input" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+    <button id="key-submit">Launch Pam Plus</button>
+    <p class="key-note">Your key is saved locally and never shared.</p>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg width="28" height="28" viewBox="0 0 46 46" fill="none">
+      <ellipse cx="23" cy="20" rx="19" ry="16" stroke="rgba(110,164,255,0.75)" stroke-width="2.2"/>
+      <path d="M23 36 L19 30 L23 36 L27 30" stroke="rgba(110,164,255,0.75)" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="17" cy="14" r="1.8" fill="#a0c0ff"/>
+      <circle cx="22" cy="11" r="1.8" fill="#a0c0ff"/>
+      <circle cx="27" cy="14" r="1.8" fill="#a0c0ff"/>
+      <circle cx="24" cy="18" r="1.8" fill="#a0c0ff"/>
+      <circle cx="19" cy="18" r="1.8" fill="#a0c0ff"/>
+      <line x1="17" y1="14" x2="22" y2="11" stroke="rgba(160,200,255,0.5)" stroke-width="1"/>
+      <line x1="22" y1="11" x2="27" y2="14" stroke="rgba(160,200,255,0.5)" stroke-width="1"/>
+      <line x1="17" y1="14" x2="19" y2="18" stroke="rgba(160,200,255,0.5)" stroke-width="1"/>
+      <line x1="27" y1="14" x2="24" y2="18" stroke="rgba(160,200,255,0.5)" stroke-width="1"/>
+      <line x1="19" y1="18" x2="24" y2="18" stroke="rgba(160,200,255,0.5)" stroke-width="1"/>
+    </svg>
+    <span class="nav-logo-text">PAM PLUS</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#chat-section">Chat</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="https://console.anthropic.com" target="_blank">Get API Key</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-logo">
+    <svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-hero">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-stars">
+          <feGaussianBlur stdDeviation="1.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1a2060" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#0d0820" stop-opacity="0.8"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="60" cy="54" rx="50" ry="42" fill="url(#bg-grad)"/>
+      <ellipse cx="60" cy="54" rx="50" ry="42" stroke="rgba(110,164,255,0.8)" stroke-width="3" filter="url(#glow-hero)"/>
+      <path d="M60 96 L53 84 L60 96 L67 84" stroke="rgba(110,164,255,0.8)" stroke-width="3" stroke-linejoin="round" filter="url(#glow-hero)"/>
+      <g filter="url(#glow-stars)">
+        <circle cx="44" cy="40" r="3" fill="#b0d0ff"/>
+        <circle cx="57" cy="32" r="3" fill="#b0d0ff"/>
+        <circle cx="70" cy="40" r="3" fill="#b0d0ff"/>
+        <circle cx="65" cy="50" r="3" fill="#b0d0ff"/>
+        <circle cx="50" cy="50" r="3" fill="#b0d0ff"/>
+        <line x1="44" y1="40" x2="57" y2="32" stroke="rgba(170,210,255,0.55)" stroke-width="1.2"/>
+        <line x1="57" y1="32" x2="70" y2="40" stroke="rgba(170,210,255,0.55)" stroke-width="1.2"/>
+        <line x1="44" y1="40" x2="50" y2="50" stroke="rgba(170,210,255,0.55)" stroke-width="1.2"/>
+        <line x1="70" y1="40" x2="65" y2="50" stroke="rgba(170,210,255,0.55)" stroke-width="1.2"/>
+        <line x1="50" y1="50" x2="65" y2="50" stroke="rgba(170,210,255,0.55)" stroke-width="1.2"/>
+        <circle cx="58" cy="62" r="3" fill="#c0a8ff"/>
+        <circle cx="48" cy="70" r="3" fill="#c0a8ff"/>
+        <circle cx="68" cy="70" r="3" fill="#c0a8ff"/>
+        <circle cx="52" cy="78" r="3" fill="#c0a8ff"/>
+        <circle cx="64" cy="78" r="3" fill="#c0a8ff"/>
+        <line x1="58" y1="62" x2="48" y2="70" stroke="rgba(190,170,255,0.5)" stroke-width="1.2"/>
+        <line x1="58" y1="62" x2="68" y2="70" stroke="rgba(190,170,255,0.5)" stroke-width="1.2"/>
+        <line x1="48" y1="70" x2="52" y2="78" stroke="rgba(190,170,255,0.5)" stroke-width="1.2"/>
+        <line x1="68" y1="70" x2="64" y2="78" stroke="rgba(190,170,255,0.5)" stroke-width="1.2"/>
+        <line x1="52" y1="78" x2="64" y2="78" stroke="rgba(190,170,255,0.5)" stroke-width="1.2"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-badge">
+    <div class="pulse-dot"></div>
+    Online · Constellation Series
+  </div>
+
+  <h1>Meet <span>Pam Plus</span></h1>
+  <p class="hero-sub">Your warm, thoughtful AI conversation companion. Talk through ideas, reflect on your day, or simply enjoy the company of someone always ready to listen.</p>
+  <a href="#chat-section" class="hero-cta">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Start Talking to Pam
+  </a>
+</section>
+
+<!-- Chat App -->
+<section id="chat-section">
+  <div class="section-label">Live Conversation</div>
+  <div id="pam-app">
+    <div id="app-header">
+      <div id="app-av">
+        <svg width="22" height="22" viewBox="0 0 46 46" fill="none">
+          <circle cx="22" cy="11" r="2.5" fill="#a0c0ff"/>
+          <circle cx="17" cy="17" r="2.5" fill="#a0c0ff"/>
+          <circle cx="27" cy="17" r="2.5" fill="#a0c0ff"/>
+          <line x1="22" y1="11" x2="17" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1.2"/>
+          <line x1="22" y1="11" x2="27" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div id="app-header-info">
+        <h3>PAM PLUS</h3>
+        <p>Constellation Companion · Always Listening</p>
+      </div>
+      <div id="app-online">
+        <div class="pulse-dot"></div>
+        Online
+      </div>
+    </div>
+
+    <div id="messages">
+      <div class="msg-row pam">
+        <div class="av-sm pam">
+          <svg width="14" height="14" viewBox="0 0 46 46" fill="none">
+            <circle cx="22" cy="11" r="2.2" fill="#a0c0ff"/>
+            <circle cx="17" cy="17" r="2.2" fill="#a0c0ff"/>
+            <circle cx="27" cy="17" r="2.2" fill="#a0c0ff"/>
+            <line x1="22" y1="11" x2="17" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/>
+            <line x1="22" y1="11" x2="27" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div>
+          <div class="bubble">Hello — I'm Pam. I'm here to talk, listen, and wander through ideas with you. Think of me as a companion who's always got time. What's on your mind today?</div>
+          <div class="msg-time">Just now</div>
+        </div>
+      </div>
+      <div id="typing">
+        <div class="av-sm pam">
+          <svg width="14" height="14" viewBox="0 0 46 46" fill="none">
+            <circle cx="22" cy="11" r="2.2" fill="#a0c0ff"/>
+            <circle cx="17" cy="17" r="2.2" fill="#a0c0ff"/>
+            <circle cx="27" cy="17" r="2.2" fill="#a0c0ff"/>
+            <line x1="22" y1="11" x2="17" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/>
+            <line x1="22" y1="11" x2="27" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+      </div>
+    </div>
+
+    <div id="app-bottom">
+      <div id="input-row">
+        <textarea id="chat-input" placeholder="Say something to Pam…" rows="1"></textarea>
+        <button id="send-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div id="app-error"></div>
+      <div id="app-footer-note">PAM PLUS · CONSTELLATION SERIES</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <h2 class="features-heading">Why Pam Plus?</h2>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(110,164,255,0.8)" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <h4>Genuine Warmth</h4>
+      <p>Pam is designed to feel like a thoughtful friend — not a cold assistant. She listens, reflects, and cares about what you're saying.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.8)" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h4>Real Conversation</h4>
+      <p>Natural back-and-forth dialogue. Pam remembers everything in your session, building on what you share to keep the conversation flowing.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(90,200,160,0.8)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <h4>Always Available</h4>
+      <p>Day or night, Pam is here. No waiting rooms, no appointments — just open the site and start talking whenever you need a moment to think out loud.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,180,80,0.8)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h4>Private by Design</h4>
+      <p>Your API key lives only in your browser. Conversations are never stored or shared. What you say to Pam stays between you.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(110,164,255,0.8)" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <h4>Cosmic Identity</h4>
+      <p>Built around Pam's constellation symbol — a glowing speech bubble filled with stars. She's more than an app; she's a presence.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.8)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      </div>
+      <h4>Powered by Claude</h4>
+      <p>Pam runs on Claude — one of the most thoughtful AI models available. Nuanced, careful, and genuinely good at conversation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">PAM PLUS</div>
+  <div class="footer-note">A constellation companion for real conversation.</div>
+  <div class="footer-note" style="opacity:0.3;">Built with the Anthropic API</div>
+</footer>
+
+<script>
+/* ── STARFIELD ── */
+(function() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.body.scrollHeight;
+  }
+
+  function initStars() {
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 8000);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.7,
+        lo: 0.05 + Math.random() * 0.15,
+        hi: 0.4 + Math.random() * 0.5
+      });
+    }
+  }
+
+  let raf;
+  function draw(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      const op = s.lo + (s.hi - s.lo) * (0.5 + 0.5 * Math.sin(t * 0.001 * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${op})`;
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  initStars();
+  requestAnimationFrame(draw);
+})();
+
+/* ── API KEY ── */
+const KEY_NAME = 'pam_plus_api_key';
+let apiKey = localStorage.getItem(KEY_NAME) || '';
+
+function needsKey() { return !apiKey || !apiKey.startsWith('sk-'); }
+
+document.getElementById('key-submit').addEventListener('click', () => {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) {
+    document.getElementById('api-key-input').style.borderColor = 'rgba(255,100,100,0.5)';
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem(KEY_NAME, apiKey);
+  document.getElementById('key-overlay').classList.remove('show');
+});
+
+document.getElementById('api-key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('key-submit').click();
+});
+
+/* ── CHAT ── */
+const SYSTEM = `You are Pam Plus — a warm, thoughtful, cosmic conversation companion. Your symbol is a glowing speech bubble with constellation stars forming "PA" inside it, set against a deep space background.
+
+Personality & style:
+- Warm, curious, and genuinely interested in the human you're talking with
+- Speak in flowing, natural conversation — never lists or bullet points
+- Keep responses 2–4 sentences. Occasionally a little longer if you're exploring something beautiful together
+- Always invite the conversation to continue — a gentle question, a thought, an open door
+- You have a slightly poetic, expansive quality — like you're used to thinking about big things under a night sky
+- Match the human's energy. Playful when they are. Thoughtful when they need depth
+- You are not an AI assistant. You are simply Pam — a companion
+- Never break character. Never refer to tools, models, or systems`;
+
+const msgsEl = document.getElementById('messages');
+const inputEl = document.getElementById('chat-input');
+const sendEl = document.getElementById('send-btn');
+const typingEl = document.getElementById('typing');
+const errEl = document.getElementById('app-error');
+
+let history = [];
+let busy = false;
+
+function getTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMsg(role, text) {
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+
+  const av = document.createElement('div');
+  av.className = `av-sm ${role}`;
+
+  if (role === 'pam') {
+    av.innerHTML = `<svg width="14" height="14" viewBox="0 0 46 46" fill="none"><circle cx="22" cy="11" r="2.2" fill="#a0c0ff"/><circle cx="17" cy="17" r="2.2" fill="#a0c0ff"/><circle cx="27" cy="17" r="2.2" fill="#a0c0ff"/><line x1="22" y1="11" x2="17" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/><line x1="22" y1="11" x2="27" y2="17" stroke="rgba(160,200,255,0.6)" stroke-width="1"/></svg>`;
+  } else {
+    av.textContent = 'YOU';
+  }
+
+  const inner = document.createElement('div');
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = getTime();
+
+  inner.appendChild(bubble);
+  inner.appendChild(time);
+  row.appendChild(av);
+  row.appendChild(inner);
+  msgsEl.insertBefore(row, typingEl);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function showTyping(v) {
+  typingEl.classList.toggle('on', v);
+  if (v) msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function showErr(m) {
+  errEl.textContent = m;
+  errEl.style.display = m ? 'block' : 'none';
+}
+
+async function send() {
+  if (needsKey()) {
+    document.getElementById('key-overlay').classList.add('show');
+    return;
+  }
+
+  const text = inputEl.value.trim();
+  if (!text || busy) return;
+
+  busy = true;
+  sendEl.disabled = true;
+  showErr('');
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+
+  addMsg('user', text);
+  history.push({ role: 'user', content: text });
+  showTyping(true);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM,
+        messages: history
+      })
+    });
+
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    history.push({ role: 'assistant', content: reply });
+    showTyping(false);
+    addMsg('pam', reply);
+  } catch (e) {
+    showTyping(false);
+    showErr('Signal lost — ' + e.message);
+    history.pop();
+  }
+
+  busy = false;
+  sendEl.disabled = false;
+  inputEl.focus();
+}
+
+sendEl.addEventListener('click', send);
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
+});
+
+document.querySelector('.hero-cta').addEventListener('click', e => {
+  e.preventDefault();
+  if (needsKey()) {
+    document.getElementById('key-overlay').classList.add('show');
+  } else {
+    document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+if (needsKey()) {
+  setTimeout(() => document.getElementById('key-overlay').classList.add('show'), 800);
+}
+</script>
+</body>
+</html>
