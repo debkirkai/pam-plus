@@ -1,1 +1,270 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pam Plus - Your Personal AI Conversation Companion</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
 
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+color: #e0e6ff;
+line-height: 1.6;
+overflow-x: hidden;
+}
+
+/* Starfield background */
+#starfield {
+position: fixed;
+width: 100%;
+height: 100%;
+top: 0;
+left: 0;
+z-index: 1;
+pointer-events: none;
+}
+
+.star {
+position: absolute;
+background: white;
+border-radius: 50%;
+animation: twinkle 3s infinite;
+}
+
+@keyframes twinkle {
+0%, 100% { opacity: 0.3; }
+50% { opacity: 1; }
+}
+
+.container {
+position: relative;
+z-index: 2;
+max-width: 900px;
+margin: 0 auto;
+padding: 60px 20px;
+text-align: center;
+}
+
+header {
+margin-bottom: 80px;
+}
+
+.logo-container {
+margin-bottom: 40px;
+}
+
+.logo {
+width: 120px;
+height: 120px;
+margin: 0 auto 30px;
+background: rgba(100, 213, 255, 0.1);
+border: 2px solid rgba(100, 213, 255, 0.3);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 48px;
+font-weight: bold;
+color: #64d5ff;
+box-shadow: 0 0 30px rgba(100, 213, 255, 0.2);
+}
+
+h1 {
+font-size: 48px;
+margin-bottom: 20px;
+background: linear-gradient(135deg, #64d5ff 0%, #a78bfa 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.tagline {
+font-size: 20px;
+color: #a8b3ff;
+margin-bottom: 60px;
+}
+
+.features {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 30px;
+margin: 60px 0;
+}
+
+.feature-card {
+background: rgba(100, 213, 255, 0.05);
+border: 1px solid rgba(100, 213, 255, 0.2);
+border-radius: 12px;
+padding: 30px 20px;
+backdrop-filter: blur(10px);
+transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+border-color: rgba(100, 213, 255, 0.5);
+background: rgba(100, 213, 255, 0.1);
+transform: translateY(-5px);
+}
+
+.feature-icon {
+font-size: 40px;
+margin-bottom: 15px;
+}
+
+.feature-card h3 {
+font-size: 18px;
+margin-bottom: 10px;
+color: #64d5ff;
+}
+
+.feature-card p {
+font-size: 14px;
+color: #b0b7cc;
+}
+
+.description {
+background: rgba(100, 213, 255, 0.08);
+border: 1px solid rgba(100, 213, 255, 0.2);
+border-radius: 12px;
+padding: 40px;
+margin: 60px 0;
+backdrop-filter: blur(10px);
+font-size: 16px;
+line-height: 1.8;
+color: #d4d9f0;
+}
+
+.cta-section {
+margin: 80px 0 60px;
+}
+
+.launch-btn {
+background: linear-gradient(135deg, #64d5ff 0%, #7dd3fc 100%);
+color: #0a0e27;
+border: none;
+padding: 18px 60px;
+font-size: 18px;
+font-weight: 600;
+border-radius: 50px;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 0 30px rgba(100, 213, 255, 0.3);
+text-decoration: none;
+display: inline-block;
+}
+
+.launch-btn:hover {
+transform: scale(1.05);
+box-shadow: 0 0 50px rgba(100, 213, 255, 0.5);
+}
+
+.launch-btn:active {
+transform: scale(0.98);
+}
+
+footer {
+margin-top: 80px;
+padding-top: 40px;
+border-top: 1px solid rgba(100, 213, 255, 0.2);
+font-size: 14px;
+color: #7a7f99;
+}
+
+footer a {
+color: #64d5ff;
+text-decoration: none;
+}
+
+footer a:hover {
+text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<div id="starfield"></div>
+
+<div class="container">
+<header>
+<div class="logo-container">
+<div class="logo">🌌</div>
+</div>
+<h1>Pam Plus</h1>
+<p class="tagline">Your Personal AI Conversation Companion</p>
+</header>
+
+<div class="description">
+<p>Pam is more than just an AI tool — she's your thinking partner. Whether you're working through decisions, brainstorming ideas, planning your day, or just need someone to talk to, Pam listens without judgment and helps you find clarity.</p>
+<p style="margin-top: 20px;">Talk to her like you'd talk to a trusted friend. She remembers everything, stays calm, and helps you move forward step by step. Many use Pam for wellness — to reduce stress, organize thoughts, and feel heard.</p>
+</div>
+
+<div class="features">
+<div class="feature-card">
+<div class="feature-icon">💬</div>
+<h3>Natural Conversation</h3>
+<p>Chat or speak to Pam like you would a friend. She responds warmly and naturally.</p>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🧠</div>
+<h3>Think It Through</h3>
+<p>Brainstorm, organize ideas, make decisions. Pam helps you get to clarity.</p>
+</div>
+<div class="feature-card">
+<div class="feature-icon">📝</div>
+<h3>She Remembers</h3>
+<p>Pam keeps your whole conversation. Pick up where you left off anytime.</p>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🎯</div>
+<h3>Practical & Real</h3>
+<p>Help with taxes, letters, decisions, daily life. Whatever's on your mind.</p>
+</div>
+<div class="feature-card">
+<div class="feature-icon">😌</div>
+<h3>Calm & Steady</h3>
+<p>Pam doesn't spiral with you. She keeps you grounded and moving forward.</p>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🎙️</div>
+<h3>Voice & Text</h3>
+<p>Speak or type. Chat hands-free or silently — your choice.</p>
+</div>
+</div>
+
+<div class="cta-section">
+<a href="app.html" class="launch-btn">Launch Pam</a>
+</div>
+
+<footer>
+<p>Pam Plus is powered by <a href="https://www.anthropic.com" target="_blank">Claude AI</a> | <a href="https://github.com/debkirkai/pam-plus" target="_blank">View on GitHub</a></p>
+<p style="margin-top: 15px; font-size: 12px;">Personal AI Mate • Conversation Companion • Always Ready to Listen</p>
+</footer>
+</div>
+
+<script>
+// Create starfield
+function createStarfield() {
+const starfield = document.getElementById('starfield');
+for (let i = 0; i < 150; i++) {
+const star = document.createElement('div');
+star.className = 'star';
+star.style.width = Math.random() * 2.5 + 'px';
+star.style.height = star.style.width;
+star.style.left = Math.random() * 100 + '%';
+star.style.top = Math.random() * 100 + '%';
+star.style.animationDelay = Math.random() * 3 + 's';
+starfield.appendChild(star);
+}
+}
+
+createStarfield();
+</script>
+</body>
+</html>
+```
