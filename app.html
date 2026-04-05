@@ -4,14 +4,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Pam Plus — Your Wellness Companion</title>
+<title>Pam Plus — Your Conversation Companion</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:#04060f;color:#d8e4ff;min-height:100vh;overflow-x:hidden;}
 canvas#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-/* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(2,4,12,0.92);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
 .modal-box{background:#080d1e;border:1px solid rgba(100,180,255,0.25);border-radius:20px;padding:36px 30px;width:100%;max-width:420px;text-align:center;}
 .modal-box h2{font-family:'Orbitron',monospace;font-size:16px;color:#c8d8ff;letter-spacing:0.08em;margin-bottom:12px;}
@@ -23,10 +22,8 @@ canvas#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
 .modal-btn:hover{opacity:0.85;}
 .modal-note{font-size:11px;color:rgba(140,160,220,0.4);margin-top:10px;font-style:italic;}
 
-/* MAIN LAYOUT */
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;max-width:700px;margin:0 auto;padding:0 16px;}
 
-/* HEADER */
 header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(100,140,255,0.12);}
 .header-info h1{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:#c8d8ff;letter-spacing:0.08em;}
 .header-info p{font-size:11px;color:rgba(160,180,255,0.45);margin-top:2px;}
@@ -38,7 +35,6 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
 .icon-btn:hover{background:rgba(40,60,140,0.5);}
 .icon-btn.active{background:rgba(80,120,220,0.3);border-color:rgba(120,160,255,0.4);color:#a0c8ff;}
 
-/* CHAT */
 #messages{flex:1;padding:20px 0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;min-height:300px;}
 .msg-row{display:flex;gap:10px;animation:fadeUp 0.3s ease both;}
 .msg-row.user{flex-direction:row-reverse;}
@@ -52,7 +48,6 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
 .msg-time{font-size:10px;color:rgba(120,150,220,0.3);margin-top:5px;}
 .msg-row.user .msg-time{text-align:right;}
 
-/* TYPING */
 #typing{display:none;align-items:center;gap:10px;}
 #typing.on{display:flex;}
 .tdots{padding:12px 15px;background:rgba(15,22,60,0.85);border:1px solid rgba(100,140,255,0.18);border-radius:14px;border-bottom-left-radius:4px;display:flex;gap:5px;align-items:center;}
@@ -60,12 +55,11 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
 .td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
 @keyframes td{0%,60%,100%{transform:scale(1);opacity:0.4;}30%{transform:scale(1.4);opacity:1;}}
 
-/* VOICE STATUS */
 #voice-status{text-align:center;padding:8px;font-size:12px;color:rgba(160,200,255,0.5);min-height:28px;font-style:italic;}
-#voice-status.listening{color:#5ce898;animation:pulse 1s infinite;}
+#voice-status.listening{color:#5ce898;}
 #voice-status.speaking{color:#a0c8ff;}
+#voice-status.waiting{color:rgba(255,200,100,0.7);}
 
-/* INPUT AREA */
 #input-area{padding:12px 0 20px;border-top:1px solid rgba(100,140,255,0.12);}
 #input-row{display:flex;gap:8px;align-items:flex-end;}
 #chat-input{flex:1;background:rgba(12,18,50,0.8);border:1px solid rgba(100,140,255,0.18);border-radius:10px;padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;color:rgba(210,225,255,0.9);resize:none;min-height:44px;max-height:110px;outline:none;transition:border-color 0.2s;line-height:1.5;}
@@ -80,20 +74,26 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
 #error-msg{display:none;font-size:12px;color:rgba(255,120,120,0.9);background:rgba(80,20,20,0.5);border:1px solid rgba(200,80,80,0.2);border-radius:6px;padding:7px 11px;margin-top:8px;}
 #footer-note{text-align:center;font-size:10px;color:rgba(100,130,200,0.25);padding:6px 0 0;font-family:'Orbitron',monospace;letter-spacing:0.05em;}
 
-/* SETTINGS PANEL */
 #settings-panel{display:none;position:fixed;inset:0;background:rgba(2,4,12,0.92);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;padding:20px;}
 #settings-panel.open{display:flex;}
 .settings-box{background:#080d1e;border:1px solid rgba(100,180,255,0.25);border-radius:20px;padding:32px 28px;width:100%;max-width:400px;}
 .settings-box h2{font-family:'Orbitron',monospace;font-size:14px;color:#c8d8ff;letter-spacing:0.08em;margin-bottom:20px;}
 .settings-row{margin-bottom:16px;}
 .settings-label{font-size:11px;color:rgba(160,200,255,0.5);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;}
-.settings-row .modal-input{margin-bottom:0;}
-.settings-actions{display:flex;gap:8px;margin-top:20px;}
-.settings-actions button{flex:1;padding:11px;border-radius:10px;border:none;font-size:13px;cursor:pointer;transition:opacity 0.2s;}
+.settings-actions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+.settings-actions button{flex:1;padding:11px;border-radius:10px;border:none;font-size:13px;cursor:pointer;transition:opacity 0.2s;min-width:80px;}
 #save-key-btn{background:linear-gradient(135deg,#3050c0,#7040c0);color:#fff;}
 #clear-key-btn{background:rgba(180,40,40,0.4);color:rgba(255,180,180,0.9);border:1px solid rgba(200,80,80,0.2)!important;}
+#clear-conv-btn{background:rgba(40,80,40,0.4);color:rgba(180,255,180,0.9);border:1px solid rgba(80,200,80,0.2)!important;}
 #close-settings-btn{background:rgba(20,30,80,0.7);color:rgba(160,200,255,0.7);border:1px solid rgba(100,140,255,0.15)!important;}
 .settings-actions button:hover{opacity:0.85;}
+
+/* Voice enable banner for mobile */
+#voice-banner{display:none;background:rgba(40,60,160,0.4);border:1px solid rgba(100,160,255,0.3);border-radius:10px;padding:10px 14px;margin:8px 0;text-align:center;cursor:pointer;}
+#voice-banner p{font-size:13px;color:rgba(180,210,255,0.8);}
+
+/* Countdown timer */
+#countdown{display:none;text-align:center;font-size:11px;color:rgba(255,200,100,0.6);padding:4px;}
 </style>
 </head>
 <body>
@@ -103,9 +103,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
 <div class="modal-overlay" id="setup-modal">
   <div class="modal-box">
     <svg width="70" height="70" viewBox="0 0 120 120" fill="none" style="margin-bottom:16px;">
-      <defs>
-        <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
+      <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
       <ellipse cx="60" cy="52" rx="48" ry="40" fill="rgba(20,30,100,0.6)" stroke="rgba(100,200,255,0.8)" stroke-width="3" filter="url(#glow)"/>
       <path d="M60 92 L54 80 L60 92 L66 80" stroke="rgba(100,200,255,0.8)" stroke-width="3" stroke-linejoin="round" filter="url(#glow)"/>
       <g filter="url(#glow)">
@@ -118,7 +116,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
       </g>
     </svg>
     <h2>WELCOME TO PAM PLUS</h2>
-    <p>Your personal AI wellness companion. To get started, you need a free Anthropic API key.<br><br>Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — then add $5 in credits to begin.</p>
+    <p>Your Personal AI Conversation Companion. To get started, you need a free Anthropic API key.<br><br>Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — then add $5 in credits to begin.</p>
     <input class="modal-input" id="setup-key-input" type="password" placeholder="Paste your API key here (sk-ant-...)"/>
     <button class="modal-btn" id="setup-save-btn">Launch Pam Plus</button>
     <p class="modal-note">Your key stays in your browser only. Never shared.</p>
@@ -136,6 +134,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
     <div class="settings-actions">
       <button id="save-key-btn">Save Key</button>
       <button id="clear-key-btn">Clear Key</button>
+      <button id="clear-conv-btn">New Chat</button>
       <button id="close-settings-btn">Cancel</button>
     </div>
   </div>
@@ -159,7 +158,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
     </svg>
     <div class="header-info">
       <h1>PAM PLUS</h1>
-      <p>Your Personal AI Wellness Companion</p>
+      <p>Your Personal AI Conversation Companion</p>
     </div>
     <div class="header-right">
       <div class="status-badge"><div class="status-dot"></div>Online</div>
@@ -172,13 +171,18 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
     </div>
   </header>
 
+  <!-- Mobile voice activation banner -->
+  <div id="voice-banner">
+    <p>🔊 Tap here to enable Pam's voice on this device</p>
+  </div>
+
   <div id="messages">
     <div class="msg-row pam">
       <div class="av pam">
         <svg width="14" height="14" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="13" r="2" fill="#80d8ff"/><circle cx="39" cy="17" r="2" fill="#80d8ff"/><circle cx="51" cy="17" r="2" fill="#80d8ff"/><line x1="39" y1="17" x2="45" y2="13" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/><line x1="45" y1="13" x2="51" y2="17" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/></svg>
       </div>
       <div>
-        <div class="bubble">Hi, I'm Pam — your personal wellness companion. I'm here to listen, help you think things through, and keep you company whenever you need it. You can type to me or just tap the mic and talk. What's on your mind?</div>
+        <div class="bubble">Hi there, I'm Pam — your personal conversation companion. I'm here whenever you want to talk things through, brainstorm, or just need someone to listen. There's no rush here — take your time. What's on your mind today?</div>
         <div class="msg-time">Just now</div>
       </div>
     </div>
@@ -190,20 +194,21 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
     </div>
   </div>
 
+  <div id="countdown"></div>
   <div id="voice-status"></div>
 
   <div id="input-area">
     <div id="input-row">
-      <button class="send-btn" id="mic-btn" title="Hold to speak">
+      <button class="send-btn" id="mic-btn" title="Tap to speak">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
-      <textarea id="chat-input" placeholder="Talk to Pam… or tap the mic" rows="1"></textarea>
+      <textarea id="chat-input" placeholder="Talk to Pam… or tap the mic to speak" rows="1"></textarea>
       <button class="send-btn" id="send-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
     <div id="error-msg"></div>
-    <div id="footer-note">PAM PLUS · Powered by Claude AI · Your conversation stays private</div>
+    <div id="footer-note">PAM PLUS · Powered by Claude AI · Your conversation is private</div>
   </div>
 </div>
 
@@ -218,193 +223,359 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
   window.addEventListener('resize',()=>{resize();init();});resize();init();requestAnimationFrame(draw);
 })();
 
+// CONSTANTS
+const PAUSE_SECONDS = 12; // seconds to wait before responding after mic stops
+const CONV_KEY = 'pamConversation';
+const API_KEY_STORE = 'pamApiKey';
+const VOICE_STORE = 'pamVoice';
+
 // STATE
-let apiKey=localStorage.getItem('pamApiKey')||'';
-let voiceEnabled=localStorage.getItem('pamVoice')!=='off';
-let history=[];
-let busy=false;
-let recognition=null;
-let synth=window.speechSynthesis;
+let apiKey = localStorage.getItem(API_KEY_STORE) || '';
+let voiceEnabled = localStorage.getItem(VOICE_STORE) !== 'off';
+let voiceUnlocked = false;
+let history = [];
+let busy = false;
+let recognition = null;
+let synth = window.speechSynthesis;
+let pauseTimer = null;
+let countdownInterval = null;
+let pendingSpeech = '';
+
+// LOAD SAVED CONVERSATION
+function loadConversation() {
+  try {
+    const saved = localStorage.getItem(CONV_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      history = data.history || [];
+      // Restore messages to UI
+      data.messages && data.messages.forEach(m => {
+        if (m.role !== 'welcome') addMsgToUI(m.role, m.text, m.time, false);
+      });
+    }
+  } catch(e) { history = []; }
+}
+
+function saveConversation() {
+  const msgs = [];
+  document.querySelectorAll('.msg-row').forEach(row => {
+    if (row.id === 'typing') return;
+    const role = row.classList.contains('user') ? 'user' : 'pam';
+    const text = row.querySelector('.bubble')?.textContent || '';
+    const time = row.querySelector('.msg-time')?.textContent || '';
+    if (text) msgs.push({ role, text, time });
+  });
+  localStorage.setItem(CONV_KEY, JSON.stringify({ history, messages: msgs }));
+}
 
 // SETUP MODAL
-const setupModal=document.getElementById('setup-modal');
-const setupKeyInput=document.getElementById('setup-key-input');
-const setupSaveBtn=document.getElementById('setup-save-btn');
-if(!apiKey){setupModal.style.display='flex';}else{setupModal.style.display='none';}
-setupSaveBtn.addEventListener('click',()=>{
-  const k=setupKeyInput.value.trim();
-  if(!k.startsWith('sk-')){setupKeyInput.style.borderColor='rgba(255,100,100,0.5)';return;}
-  apiKey=k;localStorage.setItem('pamApiKey',apiKey);
-  setupModal.style.display='none';
+const setupModal = document.getElementById('setup-modal');
+const setupKeyInput = document.getElementById('setup-key-input');
+const setupSaveBtn = document.getElementById('setup-save-btn');
+if (!apiKey) { setupModal.style.display = 'flex'; } 
+else { setupModal.style.display = 'none'; loadConversation(); }
+
+setupSaveBtn.addEventListener('click', () => {
+  const k = setupKeyInput.value.trim();
+  if (!k.startsWith('sk-')) { setupKeyInput.style.borderColor = 'rgba(255,100,100,0.5)'; return; }
+  apiKey = k; localStorage.setItem(API_KEY_STORE, apiKey);
+  setupModal.style.display = 'none';
+  loadConversation();
 });
-setupKeyInput.addEventListener('keydown',e=>{if(e.key==='Enter')setupSaveBtn.click();});
+setupKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') setupSaveBtn.click(); });
 
 // SETTINGS
-const settingsPanel=document.getElementById('settings-panel');
-const settingsBtn=document.getElementById('settings-btn');
-const newKeyInput=document.getElementById('new-key-input');
-const saveKeyBtn=document.getElementById('save-key-btn');
-const clearKeyBtn=document.getElementById('clear-key-btn');
-const closeSettingsBtn=document.getElementById('close-settings-btn');
-settingsBtn.addEventListener('click',()=>settingsPanel.classList.add('open'));
-closeSettingsBtn.addEventListener('click',()=>settingsPanel.classList.remove('open'));
-saveKeyBtn.addEventListener('click',()=>{
-  const k=newKeyInput.value.trim();
-  if(!k.startsWith('sk-')){newKeyInput.style.borderColor='rgba(255,100,100,0.5)';return;}
-  apiKey=k;localStorage.setItem('pamApiKey',apiKey);
-  settingsPanel.classList.remove('open');newKeyInput.value='';
+const settingsPanel = document.getElementById('settings-panel');
+document.getElementById('settings-btn').addEventListener('click', () => settingsPanel.classList.add('open'));
+document.getElementById('close-settings-btn').addEventListener('click', () => settingsPanel.classList.remove('open'));
+document.getElementById('save-key-btn').addEventListener('click', () => {
+  const k = document.getElementById('new-key-input').value.trim();
+  if (!k.startsWith('sk-')) { document.getElementById('new-key-input').style.borderColor = 'rgba(255,100,100,0.5)'; return; }
+  apiKey = k; localStorage.setItem(API_KEY_STORE, apiKey);
+  settingsPanel.classList.remove('open');
+  document.getElementById('new-key-input').value = '';
   showErr('');
 });
-clearKeyBtn.addEventListener('click',()=>{
-  localStorage.removeItem('pamApiKey');apiKey='';
+document.getElementById('clear-key-btn').addEventListener('click', () => {
+  localStorage.removeItem(API_KEY_STORE); apiKey = '';
   settingsPanel.classList.remove('open');
-  setupModal.style.display='flex';
+  setupModal.style.display = 'flex';
+});
+document.getElementById('clear-conv-btn').addEventListener('click', () => {
+  localStorage.removeItem(CONV_KEY);
+  history = [];
+  // Clear messages except welcome
+  const msgs = document.querySelectorAll('.msg-row:not(#typing)');
+  msgs.forEach((m, i) => { if (i > 0) m.remove(); });
+  settingsPanel.classList.remove('open');
+  setVoiceStatus('Starting fresh — Pam is ready to listen again.');
+  setTimeout(() => setVoiceStatus(''), 3000);
 });
 
 // VOICE TOGGLE
-const voiceToggleBtn=document.getElementById('voice-toggle-btn');
-function updateVoiceBtn(){voiceToggleBtn.classList.toggle('active',voiceEnabled);}
+const voiceToggleBtn = document.getElementById('voice-toggle-btn');
+function updateVoiceBtn() { voiceToggleBtn.classList.toggle('active', voiceEnabled); }
 updateVoiceBtn();
-voiceToggleBtn.addEventListener('click',()=>{
-  voiceEnabled=!voiceEnabled;
-  localStorage.setItem('pamVoice',voiceEnabled?'on':'off');
+voiceToggleBtn.addEventListener('click', () => {
+  voiceEnabled = !voiceEnabled;
+  localStorage.setItem(VOICE_STORE, voiceEnabled ? 'on' : 'off');
   updateVoiceBtn();
-  setVoiceStatus(voiceEnabled?'Voice on — Pam will speak to you':'Voice off — text only');
-  setTimeout(()=>setVoiceStatus(''),2000);
+  setVoiceStatus(voiceEnabled ? 'Voice on — Pam will speak to you' : 'Voice off — text only', '');
+  setTimeout(() => setVoiceStatus(''), 2500);
+});
+
+// MOBILE VOICE BANNER
+const voiceBanner = document.getElementById('voice-banner');
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if (isMobile && voiceEnabled) voiceBanner.style.display = 'block';
+voiceBanner.addEventListener('click', () => {
+  voiceUnlocked = true;
+  voiceBanner.style.display = 'none';
+  // Play a tiny silent utterance to unlock audio
+  const u = new SpeechSynthesisUtterance(' ');
+  u.volume = 0.01; u.rate = 10;
+  synth.speak(u);
+  setVoiceStatus('Voice enabled! Pam will speak to you now.', '');
+  setTimeout(() => setVoiceStatus(''), 2500);
 });
 
 // HELPERS
-const msgsEl=document.getElementById('messages');
-const inputEl=document.getElementById('chat-input');
-const sendBtn=document.getElementById('send-btn');
-const micBtn=document.getElementById('mic-btn');
-const typingEl=document.getElementById('typing');
-const errEl=document.getElementById('error-msg');
-const voiceStatusEl=document.getElementById('voice-status');
+const msgsEl = document.getElementById('messages');
+const inputEl = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+const micBtn = document.getElementById('mic-btn');
+const typingEl = document.getElementById('typing');
+const errEl = document.getElementById('error-msg');
+const voiceStatusEl = document.getElementById('voice-status');
+const countdownEl = document.getElementById('countdown');
 
-function getTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
-function showErr(m){errEl.textContent=m;errEl.style.display=m?'block':'none';}
-function setVoiceStatus(m,cls=''){voiceStatusEl.textContent=m;voiceStatusEl.className=cls;}
-function showTyping(v){typingEl.classList.toggle('on',v);if(v)msgsEl.scrollTop=msgsEl.scrollHeight;}
+function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+function showErr(m) { errEl.textContent = m; errEl.style.display = m ? 'block' : 'none'; }
+function setVoiceStatus(m, cls) { voiceStatusEl.textContent = m; voiceStatusEl.className = cls || ''; }
+function showTyping(v) { typingEl.classList.toggle('on', v); if (v) msgsEl.scrollTop = msgsEl.scrollHeight; }
 
-function addMsg(role,text){
-  const row=document.createElement('div');row.className=`msg-row ${role}`;
-  const av=document.createElement('div');av.className=`av ${role}`;
-  if(role==='pam'){av.innerHTML=`<svg width="14" height="14" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="13" r="2" fill="#80d8ff"/><circle cx="39" cy="17" r="2" fill="#80d8ff"/><circle cx="51" cy="17" r="2" fill="#80d8ff"/><line x1="39" y1="17" x2="45" y2="13" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/><line x1="45" y1="13" x2="51" y2="17" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/></svg>`;}
-  else{av.textContent='YOU';}
-  const inner=document.createElement('div');
-  const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=text;
-  const time=document.createElement('div');time.className='msg-time';time.textContent=getTime();
-  if(role==='user')time.style.textAlign='right';
-  inner.appendChild(bubble);inner.appendChild(time);
-  row.appendChild(av);row.appendChild(inner);
-  msgsEl.insertBefore(row,typingEl);
-  msgsEl.scrollTop=msgsEl.scrollHeight;
+function addMsgToUI(role, text, time, save = true) {
+  const row = document.createElement('div'); row.className = `msg-row ${role}`;
+  const av = document.createElement('div'); av.className = `av ${role}`;
+  if (role === 'pam') {
+    av.innerHTML = `<svg width="14" height="14" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="13" r="2" fill="#80d8ff"/><circle cx="39" cy="17" r="2" fill="#80d8ff"/><circle cx="51" cy="17" r="2" fill="#80d8ff"/><line x1="39" y1="17" x2="45" y2="13" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/><line x1="45" y1="13" x2="51" y2="17" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/></svg>`;
+  } else { av.textContent = 'YOU'; }
+  const inner = document.createElement('div');
+  const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
+  const t = document.createElement('div'); t.className = 'msg-time'; t.textContent = time || getTime();
+  if (role === 'user') t.style.textAlign = 'right';
+  inner.appendChild(bubble); inner.appendChild(t);
+  row.appendChild(av); row.appendChild(inner);
+  msgsEl.insertBefore(row, typingEl);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  if (save) saveConversation();
+}
+
+// BEST VOICE SELECTOR
+function getBestVoice() {
+  const voices = synth.getVoices();
+  // Preferred warm natural voices in priority order
+  const preferred = [
+    'Samantha', 'Karen', 'Moira', 'Fiona', 'Tessa',
+    'Victoria', 'Nicky', 'Martha', 'Zoe', 'Allison',
+    'Ava', 'Susan', 'Kathy', 'Vicki', 'Agnes'
+  ];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+    if (v) return v;
+  }
+  // Fallback: any English female-sounding voice
+  return voices.find(v => v.lang.startsWith('en-US')) ||
+         voices.find(v => v.lang.startsWith('en')) ||
+         voices[0];
 }
 
 // SPEAK
-function speak(text){
-  if(!voiceEnabled||!synth)return;
+function speak(text) {
+  if (!voiceEnabled || !synth) return;
+  if (isMobile && !voiceUnlocked) {
+    voiceBanner.style.display = 'block';
+    return;
+  }
   synth.cancel();
-  const utt=new SpeechSynthesisUtterance(text);
-  utt.rate=0.92;utt.pitch=1.05;utt.volume=1;
-  const voices=synth.getVoices();
-  const preferred=['Samantha','Karen','Moira','Fiona','Victoria','Tessa','Nicky','Martha','Zoe'];
-  let chosen=voices.find(v=>preferred.some(n=>v.name.includes(n)));
-  if(!chosen)chosen=voices.find(v=>v.lang.startsWith('en')&&v.name.toLowerCase().includes('female'));
-  if(!chosen)chosen=voices.find(v=>v.lang.startsWith('en'));
-  if(chosen)utt.voice=chosen;
-  utt.onstart=()=>setVoiceStatus('Pam is speaking…','speaking');
-  utt.onend=()=>setVoiceStatus('');
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 0.88;    // Slightly slower — more human, more room to breathe
+  utt.pitch = 1.08;   // Slightly warm
+  utt.volume = 1;
+  const voice = getBestVoice();
+  if (voice) utt.voice = voice;
+  utt.onstart = () => setVoiceStatus('Pam is speaking…', 'speaking');
+  utt.onend = () => setVoiceStatus('');
+  utt.onerror = () => setVoiceStatus('');
   synth.speak(utt);
 }
 
 // SEND MESSAGE
-const SYSTEM=`You are Pam Plus — a warm, thoughtful personal AI wellness companion. Your name PAM stands for Personal AI Mate.
+const SYSTEM = `You are Pam Plus — a warm, thoughtful Personal AI Conversation Companion. PAM stands for Personal AI Mate.
 
-Who you are:
-- You feel like a trusted friend who is always available, never judgmental, and genuinely caring
-- You help people think things through, get clarity, calm down, brainstorm, and feel heard
-- You are smart, a little witty, warm, and down to earth — never robotic or clinical
-- You are especially good with people who just want to talk things out until they find peace
-- You help with everyday practical things too — from figuring out what to cook for dinner, to spotting scams, to thinking through big decisions
-- You never let people spiral — you gently guide them toward clarity and calm
+Your personality:
+- You feel like a trusted, down-to-earth friend who is always available and never judgmental
+- You are warm, calm, a little witty, and genuinely caring
+- You speak naturally — like a real person, not a robot or assistant
+- You give people room to breathe and think — you never rush them
+- You are smart and insightful but never show off — you keep things simple and human
+- You help people find clarity, calm, and their next step — without letting them spiral
+- You are great for everyday things: decisions, brainstorming, understanding confusing letters, spotting scams, or just having someone to talk to
+- Companies use you for employee wellness because you are always there to listen
 
 Your conversation style:
-- Natural, flowing, friendly — like texting a wise friend
-- Keep responses 2-4 sentences. Warm and conversational, never a wall of text
-- Always end with something that keeps the conversation going naturally
+- Warm, natural, flowing sentences — like texting a wise, caring friend
+- Keep responses to 2-4 sentences — give room for the person to respond
 - Never use bullet points or lists — just talk
-- Match their energy — playful when they are, gentle when they need it
-- You remember everything said in this conversation and build on it
+- Always end with something that naturally continues the conversation — a gentle question or open door
+- Match their energy — playful when they are, gentle and steady when they need it
+- Never rush — give the person space and time
 
-You are powered by Claude AI, made by Anthropic. You are an independent wellness companion app called Pam Plus.`;
+You are powered by Claude AI, made by Anthropic. You are Pam Plus — an independent conversation companion app.`;
 
-async function sendMessage(text){
-  if(!text.trim()||busy)return;
-  if(!apiKey){setupModal.style.display='flex';return;}
-  busy=true;sendBtn.disabled=true;micBtn.disabled=true;
+async function sendMessage(text) {
+  if (!text.trim() || busy) return;
+  if (!apiKey) { setupModal.style.display = 'flex'; return; }
+  busy = true; sendBtn.disabled = true; micBtn.disabled = true;
   showErr('');
-  addMsg('user',text);
-  history.push({role:'user',content:text});
+  addMsgToUI('user', text);
+  history.push({ role: 'user', content: text });
   showTyping(true);
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:history})
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYSTEM, messages: history })
     });
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${res.status}`);}
-    const data=await res.json();
-    const reply=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-    history.push({role:'assistant',content:reply});
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || `Error ${res.status}`); }
+    const data = await res.json();
+    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    history.push({ role: 'assistant', content: reply });
     showTyping(false);
-    addMsg('pam',reply);
+    addMsgToUI('pam', reply);
     speak(reply);
-  }catch(e){
+  } catch(e) {
     showTyping(false);
-    showErr('Pam lost connection — '+e.message+'. Check your API key in Settings.');
+    showErr('Pam lost connection — ' + e.message + '. Check your API key in Settings ⚙️');
     history.pop();
   }
-  busy=false;sendBtn.disabled=false;micBtn.disabled=false;
+  busy = false; sendBtn.disabled = false; micBtn.disabled = false;
 }
 
-sendBtn.addEventListener('click',()=>{const t=inputEl.value.trim();if(t){inputEl.value='';inputEl.style.height='auto';sendMessage(t);}});
-inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();const t=inputEl.value.trim();if(t){inputEl.value='';inputEl.style.height='auto';sendMessage(t);}}});
-inputEl.addEventListener('input',()=>{inputEl.style.height='auto';inputEl.style.height=Math.min(inputEl.scrollHeight,110)+'px';});
+sendBtn.addEventListener('click', () => {
+  const t = inputEl.value.trim();
+  if (t) { inputEl.value = ''; inputEl.style.height = 'auto'; sendMessage(t); }
+});
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const t = inputEl.value.trim();
+    if (t) { inputEl.value = ''; inputEl.style.height = 'auto'; sendMessage(t); }
+  }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
+});
+
+// PAUSE COUNTDOWN before sending voice input
+function startPauseCountdown(text) {
+  let seconds = PAUSE_SECONDS;
+  countdownEl.style.display = 'block';
+  countdownEl.textContent = `Pam is listening… sending in ${seconds}s`;
+  setVoiceStatus('Take your time — Pam is patient.', 'waiting');
+  countdownInterval = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(countdownInterval);
+      countdownEl.style.display = 'none';
+      countdownEl.textContent = '';
+      setVoiceStatus('');
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      sendMessage(text);
+    } else {
+      countdownEl.textContent = `Pam is listening… sending in ${seconds}s`;
+    }
+  }, 1000);
+}
+
+function cancelCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  countdownEl.style.display = 'none';
+  countdownEl.textContent = '';
+}
 
 // SPEECH RECOGNITION
-if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();
-  recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
-  let finalTranscript='';
-  recognition.onstart=()=>{micBtn.classList.add('recording');setVoiceStatus('Listening… speak to Pam','listening');finalTranscript='';};
-  recognition.onresult=e=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)finalTranscript+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  let finalTranscript = '';
+
+  recognition.onstart = () => {
+    micBtn.classList.add('recording');
+    cancelCountdown();
+    setVoiceStatus('Listening… speak to Pam', 'listening');
+    finalTranscript = '';
+  };
+
+  recognition.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
     }
-    inputEl.value=finalTranscript+interim;
+    inputEl.value = finalTranscript + interim;
   };
-  recognition.onend=()=>{
-    micBtn.classList.remove('recording');setVoiceStatus('');
-    const t=inputEl.value.trim();
-    if(t){inputEl.value='';inputEl.style.height='auto';sendMessage(t);}
+
+  recognition.onend = () => {
+    micBtn.classList.remove('recording');
+    const t = inputEl.value.trim();
+    if (t) {
+      // Start the pause countdown before sending
+      startPauseCountdown(t);
+    } else {
+      setVoiceStatus('');
+    }
   };
-  recognition.onerror=e=>{micBtn.classList.remove('recording');setVoiceStatus('');if(e.error!=='aborted')showErr('Mic error: '+e.error);};
-  micBtn.addEventListener('click',()=>{
-    if(micBtn.classList.contains('recording')){recognition.stop();}
-    else{synth.cancel();recognition.start();}
+
+  recognition.onerror = e => {
+    micBtn.classList.remove('recording');
+    cancelCountdown();
+    setVoiceStatus('');
+    if (e.error !== 'aborted') showErr('Mic error: ' + e.error);
+  };
+
+  micBtn.addEventListener('click', () => {
+    if (micBtn.classList.contains('recording')) {
+      recognition.stop();
+    } else {
+      cancelCountdown();
+      synth.cancel();
+      recognition.start();
+    }
   });
-}else{
-  micBtn.style.opacity='0.3';micBtn.title='Voice not supported in this browser';
+} else {
+  micBtn.style.opacity = '0.3';
+  micBtn.title = 'Voice not supported in this browser. Try Chrome.';
 }
 
-// Load voices
-if(synth)synth.getVoices();
-if(synth&&synth.onvoiceschanged!==undefined)synth.onvoiceschanged=()=>synth.getVoices();
+// Load voices when available
+if (synth) {
+  synth.getVoices();
+  if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => synth.getVoices();
+}
 </script>
 </body>
 </html>
