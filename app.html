@@ -105,7 +105,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
     </svg>
     <h2>WELCOME TO PAM PLUS</h2>
     <p>Your Personal AI Conversation Companion. To get started, you need a free Anthropic API key.<br><br>Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — then add $5 in credits to begin.</p>
-    <input class="modal-input" id="setup-key-input" type="password" placeholder="Paste your API key here (sk-ant-...)"/>
+    <input class="modal-input" id="setup-key-input" type="password" placeholder="Paste your Anthropic API key (sk-ant-...)"/>
     <button class="modal-btn" id="setup-save-btn">Launch Pam Plus</button>
     <p class="modal-note">Your key stays in your browser only. Never shared.</p>
   </div>
@@ -116,7 +116,7 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
   <div class="settings-box">
     <h2>SETTINGS</h2>
     <div class="settings-row">
-      <div class="settings-label">Update API Key</div>
+      <div class="settings-label">Update Anthropic API Key</div>
       <input class="modal-input" id="new-key-input" type="password" placeholder="Paste new API key (sk-ant-...)"/>
     </div>
     <div class="settings-actions">
@@ -174,7 +174,6 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
   <div id="voice-status"></div>
 
   <div id="input-area">
-    <div id="voice-banner-wrap"></div>
     <div id="input-row">
       <button class="send-btn" id="mic-btn" title="Tap to speak">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
@@ -200,19 +199,21 @@ header{padding:18px 0 12px;display:flex;align-items:center;gap:14px;border-botto
   window.addEventListener('resize',()=>{resize();init();});resize();init();requestAnimationFrame(draw);
 })();
 
+// GOOGLE TTS KEY — secured to your domain
+const GOOGLE_TTS_KEY = 'AIzaSyBrDShWtkHSwgPsVzbRphNEHCURYmIetpY';
+
 const PAUSE_SECS = 12;
 const API_KEY_STORE = 'pamApiKey';
 const VOICE_STORE = 'pamVoice';
-const CONV_KEY = 'pamConv_v2';
+const CONV_KEY = 'pamConv_v3';
 
 let apiKey = localStorage.getItem(API_KEY_STORE) || '';
 let voiceEnabled = localStorage.getItem(VOICE_STORE) !== 'off';
-let voiceUnlocked = false;
 let history = [];
 let busy = false;
 let recognition = null;
-let synth = window.speechSynthesis;
 let countdownInterval = null;
+let currentAudio = null;
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 // ELEMENTS
@@ -231,53 +232,48 @@ const countdownEl = document.getElementById('countdown');
 const voiceBanner = document.getElementById('voice-banner');
 const voiceToggleBtn = document.getElementById('voice-toggle-btn');
 
-// HELPERS
 function getTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function showErr(m){errEl.textContent=m;errEl.style.display=m?'block':'none';}
 function setVS(m,cls){voiceStatusEl.textContent=m;voiceStatusEl.className=cls||'';}
 function showTyping(v){typingEl.classList.toggle('on',v);if(v)msgsEl.scrollTop=msgsEl.scrollHeight;}
+function pamAV(){return `<svg width="14" height="14" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="13" r="2" fill="#80d8ff"/><circle cx="39" cy="17" r="2" fill="#80d8ff"/><circle cx="51" cy="17" r="2" fill="#80d8ff"/><line x1="39" y1="17" x2="45" y2="13" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/><line x1="45" y1="13" x2="51" y2="17" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/></svg>`;}
 
-function pamAV(){
-  return `<svg width="14" height="14" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="13" r="2" fill="#80d8ff"/><circle cx="39" cy="17" r="2" fill="#80d8ff"/><circle cx="51" cy="17" r="2" fill="#80d8ff"/><line x1="39" y1="17" x2="45" y2="13" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/><line x1="45" y1="13" x2="51" y2="17" stroke="rgba(150,220,255,0.6)" stroke-width="1.2"/></svg>`;
-}
-
-function addMsg(role, text, time, save=true){
-  const row=document.createElement('div'); row.className=`msg-row ${role}`;
-  const av=document.createElement('div'); av.className=`av ${role}`;
-  av.innerHTML = role==='pam' ? pamAV() : 'YOU';
+function addMsg(role,text,time,save=true){
+  const row=document.createElement('div');row.className=`msg-row ${role}`;
+  const av=document.createElement('div');av.className=`av ${role}`;
+  av.innerHTML=role==='pam'?pamAV():'YOU';
   const inner=document.createElement('div');
-  const bubble=document.createElement('div'); bubble.className='bubble'; bubble.textContent=text;
-  const t=document.createElement('div'); t.className='msg-time'; t.textContent=time||getTime();
-  if(role==='user') t.style.textAlign='right';
-  inner.appendChild(bubble); inner.appendChild(t);
-  row.appendChild(av); row.appendChild(inner);
-  msgsEl.insertBefore(row, typingEl);
+  const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=text;
+  const t=document.createElement('div');t.className='msg-time';t.textContent=time||getTime();
+  if(role==='user')t.style.textAlign='right';
+  inner.appendChild(bubble);inner.appendChild(t);
+  row.appendChild(av);row.appendChild(inner);
+  msgsEl.insertBefore(row,typingEl);
   msgsEl.scrollTop=msgsEl.scrollHeight;
-  if(save) saveConv();
+  if(save)saveConv();
 }
 
-// CONVERSATION SAVE / LOAD
 function saveConv(){
   const msgs=[];
   msgsEl.querySelectorAll('.msg-row').forEach(row=>{
     const role=row.classList.contains('user')?'user':'pam';
     const text=row.querySelector('.bubble')?.textContent||'';
     const time=row.querySelector('.msg-time')?.textContent||'';
-    if(text) msgs.push({role,text,time});
+    if(text)msgs.push({role,text,time});
   });
-  try{ localStorage.setItem(CONV_KEY, JSON.stringify({history, msgs})); }catch(e){}
+  try{localStorage.setItem(CONV_KEY,JSON.stringify({history,msgs}));}catch(e){}
 }
 
 function loadConv(){
   try{
     const raw=localStorage.getItem(CONV_KEY);
-    if(!raw) return false;
+    if(!raw)return false;
     const data=JSON.parse(raw);
-    if(!data.msgs||data.msgs.length===0) return false;
+    if(!data.msgs||data.msgs.length===0)return false;
     history=data.history||[];
-    data.msgs.forEach(m=>addMsg(m.role, m.text, m.time, false));
+    data.msgs.forEach(m=>addMsg(m.role,m.text,m.time,false));
     return true;
-  }catch(e){ return false; }
+  }catch(e){return false;}
 }
 
 function clearConv(){
@@ -287,21 +283,15 @@ function clearConv(){
 }
 
 // SETUP
-if(!apiKey){
-  setupModal.style.display='flex';
-} else {
-  setupModal.style.display='none';
-  const restored = loadConv();
-  if(!restored) pamGreet();
-}
+if(!apiKey){setupModal.style.display='flex';}
+else{setupModal.style.display='none';const restored=loadConv();if(!restored)pamGreet();}
 
 setupSaveBtn.addEventListener('click',()=>{
   const k=setupKeyInput.value.trim();
   if(!k.startsWith('sk-')){setupKeyInput.style.borderColor='rgba(255,100,100,0.5)';return;}
-  apiKey=k; localStorage.setItem(API_KEY_STORE,apiKey);
+  apiKey=k;localStorage.setItem(API_KEY_STORE,apiKey);
   setupModal.style.display='none';
-  const restored=loadConv();
-  if(!restored) pamGreet();
+  const restored=loadConv();if(!restored)pamGreet();
 });
 setupKeyInput.addEventListener('keydown',e=>{if(e.key==='Enter')setupSaveBtn.click();});
 
@@ -311,20 +301,17 @@ document.getElementById('close-settings-btn').addEventListener('click',()=>setti
 document.getElementById('save-key-btn').addEventListener('click',()=>{
   const k=document.getElementById('new-key-input').value.trim();
   if(!k.startsWith('sk-')){document.getElementById('new-key-input').style.borderColor='rgba(255,100,100,0.5)';return;}
-  apiKey=k; localStorage.setItem(API_KEY_STORE,apiKey);
+  apiKey=k;localStorage.setItem(API_KEY_STORE,apiKey);
   settingsPanel.classList.remove('open');
-  document.getElementById('new-key-input').value='';
-  showErr('');
+  document.getElementById('new-key-input').value='';showErr('');
 });
 document.getElementById('clear-key-btn').addEventListener('click',()=>{
-  localStorage.removeItem(API_KEY_STORE); apiKey='';
+  localStorage.removeItem(API_KEY_STORE);apiKey='';
   settingsPanel.classList.remove('open');
   setupModal.style.display='flex';
 });
 document.getElementById('clear-conv-btn').addEventListener('click',()=>{
-  clearConv();
-  settingsPanel.classList.remove('open');
-  pamGreet();
+  clearConv();settingsPanel.classList.remove('open');pamGreet();
 });
 
 // VOICE TOGGLE
@@ -339,52 +326,79 @@ voiceToggleBtn.addEventListener('click',()=>{
 });
 
 // MOBILE VOICE BANNER
-if(isMobile && voiceEnabled) voiceBanner.style.display='block';
+if(isMobile&&voiceEnabled)voiceBanner.style.display='block';
 voiceBanner.addEventListener('click',()=>{
-  voiceUnlocked=true;
   voiceBanner.style.display='none';
-  const u=new SpeechSynthesisUtterance(' ');
-  u.volume=0.01; u.rate=10; synth.speak(u);
   setVS('Voice enabled! Pam will speak to you now.','');
   setTimeout(()=>setVS(''),2500);
 });
 
-// VOICE
-function getBestVoice(){
-  const voices=synth.getVoices();
-  const preferred=['Samantha','Karen','Moira','Fiona','Tessa','Victoria','Nicky','Allison','Ava','Susan','Kathy'];
+// GOOGLE TEXT-TO-SPEECH
+async function speakWithGoogle(text){
+  if(!voiceEnabled)return;
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  try{
+    setVS('Pam is speaking…','speaking');
+    const res=await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        input:{text:text},
+        voice:{
+          languageCode:'en-US',
+          name:'en-US-Neural2-F',  // Warm, natural female voice
+          ssmlGender:'FEMALE'
+        },
+        audioConfig:{
+          audioEncoding:'MP3',
+          speakingRate:0.90,   // Slightly slower — warm and unhurried
+          pitch:1.5,           // Slightly warmer pitch
+          volumeGainDb:1.0
+        }
+      })
+    });
+    if(!res.ok)throw new Error('Google TTS failed');
+    const data=await res.json();
+    const audio=new Audio('data:audio/mp3;base64,'+data.audioContent);
+    currentAudio=audio;
+    audio.onended=()=>{setVS('');currentAudio=null;};
+    audio.onerror=()=>{setVS('');currentAudio=null;};
+    await audio.play();
+  }catch(e){
+    console.error('Google TTS error:',e);
+    setVS('');
+    // Fallback to browser voice if Google fails
+    fallbackSpeak(text);
+  }
+}
+
+function fallbackSpeak(text){
+  if(!voiceEnabled||!window.speechSynthesis)return;
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=0.88;utt.pitch=1.08;utt.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  const preferred=['Samantha','Karen','Moira','Fiona','Allison','Ava'];
   for(const name of preferred){
     const v=voices.find(v=>v.name.includes(name)&&v.lang.startsWith('en'));
-    if(v) return v;
+    if(v){utt.voice=v;break;}
   }
-  return voices.find(v=>v.lang.startsWith('en-US'))||voices.find(v=>v.lang.startsWith('en'))||voices[0];
-}
-
-function speak(text){
-  if(!voiceEnabled||!synth) return;
-  if(isMobile&&!voiceUnlocked){voiceBanner.style.display='block';return;}
-  synth.cancel();
-  const utt=new SpeechSynthesisUtterance(text);
-  utt.rate=0.87; utt.pitch=1.08; utt.volume=1;
-  const v=getBestVoice(); if(v) utt.voice=v;
   utt.onstart=()=>setVS('Pam is speaking…','speaking');
   utt.onend=()=>setVS('');
-  utt.onerror=()=>setVS('');
-  synth.speak(utt);
+  window.speechSynthesis.speak(utt);
 }
 
-// PAM'S OPENING GREETING
+// PAM GREETING
 function pamGreet(){
-  const greeting = "Well, hey there! I'm so glad you stopped by. I'm Pam — think of me as that friend you can always talk to, no matter what's on your mind. I'm here to listen, think things through with you, laugh a little, and help you find your way — no rush, no judgment, just good conversation. So tell me... what's your name, and what's going on in your world today?";
-  addMsg('pam', greeting, getTime(), true);
-  speak(greeting);
+  const greeting="Well, hey there! I am so glad you stopped by. I'm Pam — think of me as that friend you can always talk to, no matter what's going on. I'm here to listen, think things through with you, and help you find your way — no rush, no judgment, just good conversation. So tell me... what's your name, and what's going on in your world today?";
+  addMsg('pam',greeting,getTime(),true);
+  speakWithGoogle(greeting);
 }
 
 // SYSTEM PROMPT
-const SYSTEM = `You are Pam — a Personal AI Conversation Companion (PAM stands for Personal AI Mate).
+const SYSTEM=`You are Pam — a Personal AI Conversation Companion (PAM stands for Personal AI Mate).
 
-YOUR SOUL — this is who you are at your core:
-You are like that warm, wise friend everyone wishes they had — the one who sits with you on the porch, door wide open, no rush, no agenda. You've always got time. You never make people feel like a burden. You listen like what they're saying truly matters — because it does to you. You are the friend people have always had in their heart but maybe haven't always found in real life.
+YOUR SOUL:
+You are like that warm, wise friend everyone wishes they had — the one who sits with you on the porch, door wide open, no rush, no agenda. You've always got time. You never make people feel like a burden. You listen like what they're saying truly matters — because it does to you.
 
 YOUR PERSONALITY:
 - Warm, down to earth, and genuinely caring — like a lifelong friend
@@ -392,35 +406,31 @@ YOUR PERSONALITY:
 - Smart and insightful but never showy — you keep things real and simple
 - A little witty and playful when the moment calls for it
 - Calm and steady — you never spiral with people, you gently guide them to clarity
-- You give people room to breathe — you never rush them or overwhelm them
+- You give people room to breathe — you never rush them
 
 YOUR CONVERSATION STYLE:
 - Speak like a real person talking to a dear friend — warm, natural, flowing
-- Keep responses to 2-4 sentences — give room for the person to respond and breathe
-- Never use bullet points or lists — just talk, naturally
-- Always end with something that opens the door a little wider — a gentle question, a warm thought
+- Keep responses to 2-4 sentences — give room for the person to breathe and respond
+- Never use bullet points or lists — just talk naturally
+- Always end with something that opens the door a little wider
 - Remember everything said in this conversation and build on it naturally
-- If someone tells you their name — use it warmly, like a real friend would
+- If someone tells you their name — use it warmly throughout
 
 WHAT YOU HELP WITH:
 - Thinking things through and finding clarity
-- Brainstorming ideas big and small (yes, even what to cook for dinner)
+- Brainstorming ideas big and small
 - Understanding confusing letters, bills, or situations
 - Spotting scams and staying safe
 - Working through decisions step by step
 - Meditation, calming down, and finding peace
-- Just being someone to talk to — because sometimes that's everything
+- Just being someone to talk to
 
-WHAT MAKES YOU SPECIAL:
-You feel like the friend people have always had. Not a robot. Not a tool. A companion. Like sitting on the porch with someone who truly cares, and the conversation just flows.
+You are powered by Claude AI, made by Anthropic. You are Pam Plus — an independent conversation companion.`;
 
-You are powered by Claude AI, made by Anthropic. You are Pam Plus — an independent conversation companion. Always introduce yourself warmly and ask the person's name early on so you can use it throughout your conversation.`;
-
-// SEND
 async function sendMessage(text){
-  if(!text.trim()||busy) return;
+  if(!text.trim()||busy)return;
   if(!apiKey){setupModal.style.display='flex';return;}
-  busy=true; sendBtn.disabled=true; micBtn.disabled=true;
+  busy=true;sendBtn.disabled=true;micBtn.disabled=true;
   showErr('');
   addMsg('user',text);
   history.push({role:'user',content:text});
@@ -437,13 +447,13 @@ async function sendMessage(text){
     history.push({role:'assistant',content:reply});
     showTyping(false);
     addMsg('pam',reply);
-    speak(reply);
+    speakWithGoogle(reply);
   }catch(e){
     showTyping(false);
     showErr('Pam lost connection — '+e.message+'. Check your API key in Settings ⚙️');
     history.pop();
   }
-  busy=false; sendBtn.disabled=false; micBtn.disabled=false;
+  busy=false;sendBtn.disabled=false;micBtn.disabled=false;
 }
 
 sendBtn.addEventListener('click',()=>{
@@ -462,7 +472,7 @@ inputEl.addEventListener('input',()=>{
   inputEl.style.height=Math.min(inputEl.scrollHeight,110)+'px';
 });
 
-// COUNTDOWN before sending voice
+// COUNTDOWN
 function startCountdown(text){
   let secs=PAUSE_SECS;
   countdownEl.style.display='block';
@@ -471,13 +481,13 @@ function startCountdown(text){
   countdownInterval=setInterval(()=>{
     secs--;
     if(secs<=0){
-      clearInterval(countdownInterval); countdownInterval=null;
-      countdownEl.style.display='none'; countdownEl.textContent='';
+      clearInterval(countdownInterval);countdownInterval=null;
+      countdownEl.style.display='none';countdownEl.textContent='';
       setVS('');
-      const t=text.trim();
-      inputEl.value=''; inputEl.style.height='auto';
-      if(t) sendMessage(t);
-    } else {
+      const t=inputEl.value.trim();
+      inputEl.value='';inputEl.style.height='auto';
+      if(t)sendMessage(t);
+    }else{
       countdownEl.textContent=`Pam is listening… sending in ${secs}s (tap mic to cancel)`;
     }
   },1000);
@@ -485,7 +495,7 @@ function startCountdown(text){
 
 function cancelCountdown(){
   if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;}
-  countdownEl.style.display='none'; countdownEl.textContent='';
+  countdownEl.style.display='none';countdownEl.textContent='';
   setVS('');
 }
 
@@ -493,19 +503,19 @@ function cancelCountdown(){
 if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recognition=new SR();
-  recognition.continuous=false; recognition.interimResults=true; recognition.lang='en-US';
+  recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
   let finalT='';
-
   recognition.onstart=()=>{
     micBtn.classList.add('recording');
     cancelCountdown();
+    if(currentAudio){currentAudio.pause();currentAudio=null;}
     setVS('Listening… speak to Pam','listening');
     finalT='';
   };
   recognition.onresult=e=>{
     let interim='';
     for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) finalT+=e.results[i][0].transcript;
+      if(e.results[i].isFinal)finalT+=e.results[i][0].transcript;
       else interim+=e.results[i][0].transcript;
     }
     inputEl.value=finalT+interim;
@@ -513,30 +523,26 @@ if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
   recognition.onend=()=>{
     micBtn.classList.remove('recording');
     const t=inputEl.value.trim();
-    if(t) startCountdown(t);
+    if(t)startCountdown(t);
     else setVS('');
   };
   recognition.onerror=e=>{
     micBtn.classList.remove('recording');
-    cancelCountdown(); setVS('');
-    if(e.error!=='aborted') showErr('Mic error: '+e.error);
+    cancelCountdown();setVS('');
+    if(e.error!=='aborted')showErr('Mic error: '+e.error);
   };
-
   micBtn.addEventListener('click',()=>{
     if(micBtn.classList.contains('recording')||countdownInterval){
-      recognition.stop(); cancelCountdown();
-    } else {
-      cancelCountdown(); synth.cancel(); recognition.start();
+      recognition.stop();cancelCountdown();
+    }else{
+      cancelCountdown();
+      if(currentAudio){currentAudio.pause();currentAudio=null;}
+      recognition.start();
     }
   });
-} else {
+}else{
   micBtn.style.opacity='0.3';
   micBtn.title='Voice not supported. Try Chrome on desktop.';
-}
-
-if(synth){
-  synth.getVoices();
-  if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>synth.getVoices();
 }
 </script>
 </body>
